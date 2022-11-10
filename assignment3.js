@@ -34,9 +34,9 @@ export class Assignment3 extends Scene {
 
     make_control_panel() {
         // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-        this.key_triggered_button("Left", ["j"], () => {this.movement[0] = -1}, undefined, () => this.movement[0] = 0);
-        this.key_triggered_button("Right", ["l"], () => {this.movement[0] = 1}, undefined, () => this.movement[0] = 0);
-        this.key_triggered_button("Jump", ["i"], () => {this.movement[1] = 1}, undefined, () => this.movement[1] = 0);
+        this.key_triggered_button("Left", ["ArrowLeft"], () => {this.movement[0] = -1}, undefined, () => this.movement[0] = 0);
+        this.key_triggered_button("Right", ["ArrowRight"], () => {this.movement[0] = 1}, undefined, () => this.movement[0] = 0);
+        this.key_triggered_button("Jump", ["ArrowUp"], () => {this.movement[1] = 1}, undefined, () => this.movement[1] = 0);
     }
 
     display(context, program_state) {
