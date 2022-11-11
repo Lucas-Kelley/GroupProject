@@ -4,6 +4,30 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
+class Tiles extends Shape {
+    constructor(hole_locations=0) {
+        super("position", "normal",);
+        this.arrays.position = Vector3.cast(
+            [1,2,-1],[2,2,-1],[1,2,1],[2,2,1],  [0,2,-1],[1,2,-1],[0,2,1],[1,2,1],  [-1,2,-1],[0,2,-1],[-1,2,1],[0,2,1], [-2,2,-1],[-1,2,-1],[-2,2,1],[-1,2,1], // TOP
+            [2,-2,-1],[1,-2,-1],[2,-2,1],[1,-2,1],  [1,-2,-1],[0,-2,-1],[1,-2,1],[0,-2,1],  [0,-2,-1],[-1,-2,-1],[0,-2,1],[-1,-2,1],  [-1,-2,-1],[-2,-2,-1],[-1,-2,1],[-2,-2,1], // BOTTOM
+            [-2,-2,1],[-2,-2,-1],[-2,-1,1],[-2,-1,-1],  [-2,-1,1],[-2,-1,-1],[-2,0,1],[-2,0,-1],  [-2,0,1],[-2,0,-1],[-2,1,1],[-2,1,-1],  [-2,1,1],[-2,1,-1],[-2,2,1],[-2,2,-1], // LEFT
+            [2,-2,1],[2,-2,-1],[2,-1,1],[2,-1,-1],  [2,-1,1],[2,-1,-1],[2,0,1],[2,0,-1],  [2,0,1],[2,0,-1],[2,1,1],[2,1,-1],  [2,1,1],[2,1,-1],[2,2,1],[2,2,-1], // RIGHT
+        ); 
+        this.arrays.normal = Vector3.cast(
+            [0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0],  [0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0],  [0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0],  [0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0], // TOP
+            [0,1,0],[0,1,0],[0,1,0],[0,1,0],  [0,1,0],[0,1,0],[0,1,0],[0,1,0],  [0,1,0],[0,1,0],[0,1,0],[0,1,0],  [0,1,0],[0,1,0],[0,1,0],[0,1,0], // BOTTOM
+            [1,0,0],[1,0,0],[1,0,0],[1,0,0],  [1,0,0],[1,0,0],[1,0,0],[1,0,0],  [1,0,0],[1,0,0],[1,0,0],[1,0,0],  [1,0,0],[1,0,0],[1,0,0],[1,0,0], // LEFT
+            [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0], // RIGHT
+        );
+        // Arrange the vertices into a square shape in texture space too:
+        this.indices.push(0,1,2,1,3,2,  4,5,6,5,7,6,  8,9,10,9,11,10,  12,13,14,13,15,14,
+            16,17,18,17,19,18,  20,21,22,21,23,22,  24,25,26,25,27,26,  28,29,30,29,31,30,
+            32,33,34,33,35,34,  36,37,38,37,39,38,  40,41,42,41,43,42,  44,45,46,45,47,46,
+            48,49,50,49,51,50,  52,53,54,53,55,54,  56,57,58,57,59,58, 60,61,62,61,63,62,
+            );
+    }
+}
+
 export class Assignment3 extends Scene {
     constructor() {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
@@ -13,6 +37,7 @@ export class Assignment3 extends Scene {
         this.shapes = {
             tile: new defs.Square(),
             player: new defs.Cube(),
+            tiles: new Tiles(),
         };
 
         // *** Materials
@@ -25,6 +50,8 @@ export class Assignment3 extends Scene {
                 {ambient: 0, diffusivity: 0, specularity: 0, color: hex_color("000000")}),
         }
 
+        this.pause = 1;
+        this.time = 0;
         this.platform_rotation = 0;
         this.player_position = 0.0;
         this.movement = vec3(0,0,0);
@@ -37,6 +64,7 @@ export class Assignment3 extends Scene {
         this.key_triggered_button("Left", ["ArrowLeft"], () => {this.movement[0] = -1}, undefined, () => this.movement[0] = 0);
         this.key_triggered_button("Right", ["ArrowRight"], () => {this.movement[0] = 1}, undefined, () => this.movement[0] = 0);
         this.key_triggered_button("Jump", ["ArrowUp"], () => {this.movement[1] = 1}, undefined, () => this.movement[1] = 0);
+        this.key_triggered_button("Pause", ["ArrowDown"], () => {this.pause = this.pause*-1}, undefined);
     }
 
     display(context, program_state) {
@@ -63,18 +91,26 @@ export class Assignment3 extends Scene {
 
         let base_transform = Mat4.identity().times(Mat4.rotation(an,1,0,0)).times(Mat4.scale(1,2,1));
         base_transform = base_transform.times(Mat4.translation(-4,0,-4));
+        if (this.time <= 30) {
+            this.time += dt;
+        } else {
+            this.time = 0;
+        }
 
-        base_transform = base_transform.times(Mat4.translation(0,3*t,0));
+        if (this.pause == -1) {
+            this.time -= dt;
+        }
+        base_transform = base_transform.times(Mat4.translation(0,3*this.time,0));
 
 
-        if(this.player_position > 14) {
+        if(this.player_position > 15) {
             this.platform_rotation++;
             this.platform_rotation = this.platform_rotation%4;
-            this.player_position = -14;
-        } else if (this.player_position < -14) {
+            this.player_position = -15;
+        } else if (this.player_position < -15) {
             this.platform_rotation--;
             this.platform_rotation = this.platform_rotation%4;
-            this.player_position = 14;
+            this.player_position = 15;
         }
         base_transform = base_transform.times(Mat4.rotation(an*this.platform_rotation, 0,-1,0));
         if(this.platform_rotation == 0) {
@@ -87,6 +123,7 @@ export class Assignment3 extends Scene {
             base_transform = base_transform.times(Mat4.translation(-8,0,0));
         }
         // base_transform = base_transform.times(Mat4.translation(4,0,-4)).times(Mat4.rotation(this.platform_rotation*an, 0,-1,0)).times(Mat4.translation(-4,0,4));
+        // this.shapes.tiles.draw(context, program_state, Mat4.identity().times(Mat4.rotation(t, 0,0,1)).times(Mat4.translation(2,2,0)), this.materials.player_material);
 
 
         let mats = [this.materials.tile_material, this.materials.void_material] //this.materials.tile_material.override({color: color(1,0,0,1)}),this.materials.tile_material.override({color: color(0,1,0,1)})];
