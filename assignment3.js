@@ -5,7 +5,7 @@ const {
 } = tiny;
 
 class Tiles extends Shape {
-    constructor(hole_locations=0) {
+    constructor(tile_locations=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]) {
         super("position", "normal",);
         this.arrays.position = Vector3.cast(
             [1,2,-1],[2,2,-1],[1,2,1],[2,2,1],  [0,2,-1],[1,2,-1],[0,2,1],[1,2,1],  [-1,2,-1],[0,2,-1],[-1,2,1],[0,2,1], [-2,2,-1],[-1,2,-1],[-2,2,1],[-1,2,1], // TOP
@@ -20,10 +20,49 @@ class Tiles extends Shape {
             [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0],  [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0], // RIGHT
         );
         // Arrange the vertices into a square shape in texture space too:
+        let indexes = [[0,1,2,1,3,2], [4,5,6,5,7,6], [8,9,10,9,11,10], [12,13,14,13,15,14],
+        [16,17,18,17,19,18],  [20,21,22,21,23,22],  [24,25,26,25,27,26],  [28,29,30,29,31,30],
+        [32,33,34,33,35,34],  [36,37,38,37,39,38],  [40,41,42,41,43,42],  [44,45,46,45,47,46],
+        [48,49,50,49,51,50],  [52,53,54,53,55,54],  [56,57,58,57,59,58],  [60,61,62,61,63,62],
+        ];
+
+        for (let i = 0; i < tile_locations.length; i++) {
+            if (tile_locations[i] == 1) {
+                for (let j = 0; j < 6; j++) {
+                    this.indices.push(indexes[i][j]);
+                }
+            }
+        }
+        // this.indices.push(0,1,2,1,3,2,  4,5,6,5,7,6,  8,9,10,9,11,10,  12,13,14,13,15,14,
+        //     16,17,18,17,19,18,  20,21,22,21,23,22,  24,25,26,25,27,26,  28,29,30,29,31,30,
+        //     32,33,34,33,35,34,  36,37,38,37,39,38,  40,41,42,41,43,42,  44,45,46,45,47,46,
+        //     48,49,50,49,51,50,  52,53,54,53,55,54,  56,57,58,57,59,58,  60,61,62,61,63,62,
+        //     );
+    }
+}
+
+class Player extends Shape {
+    constructor(hole_locations=0) {
+        super("position", "normal",);
+        this.arrays.position = Vector3.cast(
+            [-0.125,-0.25,-0.125],[0.125,-0.25,-0.125],[-0.125,-0.25,0.125],[0.125,-0.25,0.125], // BOTTOM
+            [0.125,0.25,-0.125],[-0.125,0.25,-0.125],[0.125,0.25,0.125],[-0.125,0.25,0.125], // TOP
+            [-0.125,-0.25,-0.125],[-0.125,-0.25,0.125],[-0.125,0.25,-0.125],[-0.125,0.25,0.125], // LEFT
+            [0.125,-0.25,0.125],[0.125,-0.25,-0.125],[0.125,0.25,0.125],[0.125,0.25,-0.125], // RIGHT
+            [-0.125,-0.25,0.125],[0.125,-0.25,0.125],[-0.125,0.25,0.125],[0.125,0.25,0.125], // FRONT
+            [0.125,-0.25,-0.125],[-0.125,-0.25,-0.125],[0.125,0.25,-0.125],[-0.125,0.25,-0.125], // BACK
+        ); 
+        this.arrays.normal = Vector3.cast(
+            [0,-1,0],[0,-1,0],[0,-1,0],[0,-1,0], // BOTTOM
+            [0,1,0],[0,1,0],[0,1,0],[0,1,0], // TOP
+            [-1,0,0],[-1,0,0],[-1,0,0],[-1,0,0], // LEFT
+            [1,0,0],[1,0,0],[1,0,0],[1,0,0], // RIGHT
+            [0,0,1],[0,0,1],[0,0,1],[0,0,1], // FRONT
+            [0,0,-1],[0,0,-1],[0,0,-1],[0,0,-1], // BACK
+        );
+        // Arrange the vertices into a square shape in texture space too:
         this.indices.push(0,1,2,1,3,2,  4,5,6,5,7,6,  8,9,10,9,11,10,  12,13,14,13,15,14,
-            16,17,18,17,19,18,  20,21,22,21,23,22,  24,25,26,25,27,26,  28,29,30,29,31,30,
-            32,33,34,33,35,34,  36,37,38,37,39,38,  40,41,42,41,43,42,  44,45,46,45,47,46,
-            48,49,50,49,51,50,  52,53,54,53,55,54,  56,57,58,57,59,58, 60,61,62,61,63,62,
+            16,17,18,17,19,18,  20,21,22,21,23,22,
             );
     }
 }
@@ -33,11 +72,15 @@ export class Assignment3 extends Scene {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
         super();
 
+        // for (let i = 0; i < 65536; i++) {
+        //     let temp = new Tiles()
+        // }
         // At the beginning of our program, load one of each of these shape definitions onto the GPU.
         this.shapes = {
             tile: new defs.Square(),
-            player: new defs.Cube(),
+            player: new Player(),
             tiles: new Tiles(),
+            // tiles1: [],
         };
 
         // *** Materials
@@ -52,15 +95,18 @@ export class Assignment3 extends Scene {
 
         this.pause = 1;
         this.time = 0;
+        this.t1 = 0;
         this.platform_rotation = 0;
         this.player_position = 0.0;
+        this.start_rotation = 0;
         this.movement = vec3(0,0,0);
         this.tiles = [];
         this.initial_camera_location = Mat4.identity().times(Mat4.translation(0,2,-10));
+        this.translation = Mat4.translation(0,0,0);
+        this.translationb = Mat4.translation(0,0,0);
     }
 
     make_control_panel() {
-        // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
         this.key_triggered_button("Left", ["ArrowLeft"], () => {this.movement[0] = -1}, undefined, () => this.movement[0] = 0);
         this.key_triggered_button("Right", ["ArrowRight"], () => {this.movement[0] = 1}, undefined, () => this.movement[0] = 0);
         this.key_triggered_button("Jump", ["ArrowUp"], () => {this.movement[1] = 1}, undefined, () => this.movement[1] = 0);
@@ -68,119 +114,75 @@ export class Assignment3 extends Scene {
     }
 
     display(context, program_state) {
-        // display():  Called once per frame of animation.
-        // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
-            // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(this.initial_camera_location);
         }
 
         program_state.projection_transform = Mat4.perspective(
-            Math.PI / 4, context.width / context.height, .1, 1000);  
+            Math.PI / 4, context.width / context.height, .1, 1000);
 
-        // TODO: Lighting (Requirement 2)
-        const light_position = vec4(4, 4, 0, 1);
-        // The parameters of the Light are: position, color, size
+        const light_position = vec4(0, 0, 0, 1);
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         program_state.lights = [new Light(light_position, color(1,1,1,1), 1000)];
-
-        // this.shapes.tile.draw(context, program_state, Mat4.identity().times(Mat4.translation(-1,8,0).times(Mat4.rotation((3*Math.PI)/2,1,0,0))), this.materials.tile_material);
+        this.time += dt;
 
         let an = Math.PI/2;
+        let cur_rotation = 0;
 
-        let base_transform = Mat4.identity().times(Mat4.rotation(an,1,0,0)).times(Mat4.scale(1,2,1));
-        base_transform = base_transform.times(Mat4.translation(-4,0,-4));
-        if (this.time <= 30) {
-            this.time += dt;
-        } else {
-            this.time = 0;
-        }
-
-        if (this.pause == -1) {
-            this.time -= dt;
-        }
-        base_transform = base_transform.times(Mat4.translation(0,3*this.time,0));
-
-
-        if(this.player_position > 15) {
-            this.platform_rotation++;
-            this.platform_rotation = this.platform_rotation%4;
-            this.player_position = -15;
-        } else if (this.player_position < -15) {
+        if(this.player_position > 1.875) {
+            this.start_rotation = -1;
             this.platform_rotation--;
-            this.platform_rotation = this.platform_rotation%4;
-            this.player_position = 15;
+            this.player_position = -1.875;
+            // this.translation = Mat4.translation(-2,-2,0);
+            // this.translationb = Mat4.translation(2,2,0);
+        } else if (this.player_position < -1.875) {
+            this.start_rotation = 1;
+            this.platform_rotation++;
+            this.player_position = 1.875;
+            // this.translation = Mat4.translation(2,2,0);
+            // this.translationb = Mat4.translation(-2,-2,0);
         }
-        base_transform = base_transform.times(Mat4.rotation(an*this.platform_rotation, 0,-1,0));
-        if(this.platform_rotation == 0) {
-            // do nothing
-        } else if (this.platform_rotation == 1 || this.platform_rotation == -3) {
-            base_transform = base_transform.times(Mat4.translation(0,0,-8));
-        } else if (this.platform_rotation == 2 || this.platform_rotation == -2) {
-            base_transform = base_transform.times(Mat4.translation(-8,0,-8));
-        } else if (this.platform_rotation == 3 || this.platform_rotation == -1) {
-            base_transform = base_transform.times(Mat4.translation(-8,0,0));
-        }
-        // base_transform = base_transform.times(Mat4.translation(4,0,-4)).times(Mat4.rotation(this.platform_rotation*an, 0,-1,0)).times(Mat4.translation(-4,0,4));
-        // this.shapes.tiles.draw(context, program_state, Mat4.identity().times(Mat4.rotation(t, 0,0,1)).times(Mat4.translation(2,2,0)), this.materials.player_material);
 
-
-        let mats = [this.materials.tile_material, this.materials.void_material] //this.materials.tile_material.override({color: color(1,0,0,1)}),this.materials.tile_material.override({color: color(0,1,0,1)})];
-        let index = 0;
-        for(let k = 0; k<64; k++){
-            let temp = base_transform;
-            for(let j = 0; j < 2; j++){
-                for(let i = 1; i < 9; i+=2){
-                    if (index >= this.tiles.length){
-                        // this.tiles.push(mats[j]);
-                        this.tiles.push(mats[Math.floor(Math.random()*mats.length)]);
-                    }
-                    this.shapes.tile.draw(context, program_state, temp.times(Mat4.translation(i,0,0)), this.tiles[index]);
-                    index++;
-                    if (index >= this.tiles.length){
-                        // this.tiles.push(mats[j+2]);
-                        this.tiles.push(mats[Math.floor(Math.random()*mats.length)]);
-                    }
-                    this.shapes.tile.draw(context, program_state, temp.times(Mat4.translation(i,0,8)).times(Mat4.rotation(2*an,1,0,0)), this.tiles[index]);
-                    index++;
-                }
-                temp = temp.times(Mat4.translation(0,0,8)).times(Mat4.rotation(Math.PI/2,0,1,0));
-            }
-            base_transform = base_transform.times(Mat4.translation(0,-2,0));
+        if (this.start_rotation == -1) {
+            this.t1 = Math.max(-1, this.t1-dt);
+            cur_rotation = this.t1*an;
+        } else if (this.start_rotation == 1) {
+            this.t1 = Math.min(1, this.t1+dt);
+            cur_rotation = this.t1*an;
         }
+
+        if (this.t1 == 1) {
+            this.t1 = 0;
+            this.start_rotation = 0;
+            this.platform_rotation++;
+            // this.translation = Mat4.translation(0,0,0);
+            // this.translationb = Mat4.translation(0,0,0);
+        } else if (this.t1 == -1) {
+            this.t1 = 0;
+            this.start_rotation = 0;
+            this.platform_rotation--;
+            // this.translation = Mat4.translation(0,0,0);
+            // this.translationb = Mat4.translation(0,0,0);
+        }
+
+        
+        let base_transform = Mat4.identity().times(Mat4.translation(0,0,1).times(Mat4.rotation(this.platform_rotation*an+cur_rotation, 0,0,1)));
+        this.shapes.tiles.draw(context, program_state, base_transform, this.materials.tile_material);
+        let num_platforms = 16
+        for (let i = 0; i < num_platforms; i++) {
+            base_transform = base_transform.times(Mat4.translation(0,0,-2));
+            this.shapes.tiles.draw(context, program_state, base_transform, this.materials.tile_material);
+        }
+    
         if(this.movement[0] != 0) {
-            this.player_position = this.player_position + (this.movement[0]*dt*12)
+            this.player_position = this.player_position + (this.movement[0]*dt*5);
         }
-        let player_transform = Mat4.identity().times(Mat4.translation(0,-3.5,-1).times(Mat4.scale(0.25,0.5,0.25)));
-        player_transform = player_transform.times(Mat4.translation(this.player_position,0,0));
+        let player_transform = Mat4.identity().times(Mat4.translation(this.player_position,-1.75,0));
         this.shapes.player.draw(context, program_state, player_transform, this.materials.player_material);
 
-
-        let desired = Mat4.inverse(Mat4.identity().times(Mat4.translation(this.player_position/4, -3.5, -1)).times(Mat4.translation(0, 2, 10)));
+        let desired = Mat4.inverse(player_transform.times(Mat4.translation(0,1,4)));
         program_state.set_camera(desired);
-        
-        // base_transform = base_transform.times(Mat4.rotation(Math.PI/2,0,0,1));
-        // for(let i = 0; i < 8; i+=2){
-        //     base_transform = base_transform.times(Mat4.translation(0,i,0));
-        //     this.shapes.tile.draw(context, program_state, base_transform, this.materials.tile_material);
-        //     base_transform = base_transform.times(Mat4.translation(0,-i,0));
-        // }
-
-        //camera stuff
-        // this.planet_1 = planet1_transform;
-        // this.planet_2 = planet2_transform;
-        // this.planet_3 = planet3_transform;
-        // this.planet_4 = planet4_transform;
-        // this.moon = moon_transform;
-
-        // if (this.attached && this.attached() !== null) {
-        //     desired = Mat4.inverse(this.attached().times(Mat4.translation(0, 0, 5)));
-        // } else {
-        //     desired = this.initial_camera_location;
-        // }
-        // desired = desired.map((x, i) => Vector.from(program_state.camera_inverse[i]).mix(x, 0.1));
-        // program_state.set_camera(desired);
     }
 }
 
