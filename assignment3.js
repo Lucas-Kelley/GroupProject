@@ -154,11 +154,18 @@ export class Assignment3 extends Scene {
                 this.movement[0] = 0}});
         this.key_triggered_button("Jump", ["ArrowUp"], () => {if (!this.game_over) {
             this.movement[1] = 1}}, undefined);
-        this.key_triggered_button("Start/Pause", ["ArrowDown"], () => {if (!this.game_over) {
+        this.key_triggered_button("Start/Pause the game", ["ArrowDown"], () => {if (!this.game_over) {
             this.pause = !this.pause
             this.start = false}}, undefined);
-        this.key_triggered_button("Increase Game Speed (Can only be changed at the start of the game)", ["]"], () => {if (this.start) {this.game_speed += 1}}, undefined);
-        this.key_triggered_button("Decrease Game Speed (Can only be changed at the start of the game)", ["["], () => {if (this.start) {this.game_speed -= 1}}, undefined);
+        this.live_string(box => {
+            box.textContent = "Score: " + (this.time*(this.game_speed/2)).toFixed(2)
+        });
+        this.key_triggered_button("Increase Game Speed", ["]"], () => {if (this.start) {this.game_speed += 1}}, undefined);
+        this.live_string(box => {
+            box.textContent = "Game Speed: " + this.game_speed.toFixed(2)
+        });
+        this.key_triggered_button("Decrease Game Speed", ["["], () => {if (this.start) {this.game_speed -= 1}}, undefined);
+        
     }
 
     display(context, program_state) {
