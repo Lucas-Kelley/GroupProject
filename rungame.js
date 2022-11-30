@@ -83,7 +83,7 @@ class Player extends Shape {
     }
 }
 
-export class Assignment3 extends Scene {
+export class RunGame extends Scene {
     constructor() {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
         super();
@@ -130,6 +130,8 @@ export class Assignment3 extends Scene {
             this.tile_transforms[i] = temp_tile_transform; // Add the tile transform to the array at its respective index
         }
 
+        this.reset_flag = false;
+        this.difficulty = 0;
         this.pause = true; // Flag for pausing the game
         this.game_over = false;
         this.t1 = 0; // Time variable used for creating smooth rotations
@@ -146,13 +148,13 @@ export class Assignment3 extends Scene {
     }
 
     make_control_panel() { // Movement controls arrow keys for strafing and up arrow for jump down arrow for start/pause and brackets to increase and decrease the game speed before starting the game
-        this.key_triggered_button("Left", ["ArrowLeft"], () => {if (!this.game_over) {
-            this.movement[0] = -1}}, undefined, () => {if (!this.game_over) {
+        this.key_triggered_button("Left", ["ArrowLeft"], () => {if (!this.game_over && !this.pause) {
+            this.movement[0] = -1}}, undefined, () => {if (!this.game_over && !this.pause) {
                 this.movement[0] = 0}});
-        this.key_triggered_button("Right", ["ArrowRight"], () => {if (!this.game_over) {
-            this.movement[0] = 1}}, undefined, () => {if (!this.game_over) {
+        this.key_triggered_button("Right", ["ArrowRight"], () => {if (!this.game_over && !this.pause) {
+            this.movement[0] = 1}}, undefined, () => {if (!this.game_over && !this.pause) {
                 this.movement[0] = 0}});
-        this.key_triggered_button("Jump", ["ArrowUp"], () => {if (!this.game_over) {
+        this.key_triggered_button("Jump", ["ArrowUp"], () => {if (!this.game_over && !this.pause) {
             this.movement[1] = 1}}, undefined);
         this.key_triggered_button("Start/Pause the game", ["ArrowDown"], () => {if (!this.game_over) {
             this.pause = !this.pause
@@ -165,7 +167,46 @@ export class Assignment3 extends Scene {
             box.textContent = "Game Speed: " + this.game_speed.toFixed(2)
         });
         this.key_triggered_button("Decrease Game Speed", ["["], () => {if (this.start) {this.game_speed -= 1}}, undefined);
-        
+        this.key_triggered_button("Decrease Difficulty" , ["Shift", "ArrowDown"], () => {if (this.start && this.difficulty < 0.5) {
+            this.difficulty += 0.01}}, undefined);
+        this.live_string(box => {
+            box.textContent = "Game Difficulty: " + Number.parseInt((-100*((this.difficulty.valueOf()+0.50))+100).toFixed(3))
+        });
+        this.key_triggered_button("Increase Difficulty" , ["Shift", "ArrowUp"], () => {if (this.start && this.difficulty > -0.5) {
+            this.difficulty -= 0.01}}, undefined);
+        this.key_triggered_button("Reset", ["r"], () => {this.reset_flag = true}, undefined);
+
+    }
+
+    reset(context) {
+        this.time = 0;
+        let temp_tile_transform; // Temp variable for creating base transforms
+        for (let i = 0; i < this.num_platforms; i++) { // For 0 to the number of platforms
+            if (i == 0) { // If it is the first iteration (first tile object)
+                temp_tile_transform = Mat4.identity().times(Mat4.translation(0,0,5)); // Create the first transform as the identity matrix translated back 5 units
+            } else if (i != 0) { // If it is not the first iteration (not first tile object)
+                temp_tile_transform = temp_tile_transform.times(Mat4.translation(0,0,-2)); // Make the tile transform the previous tile transform multiplied by a translation 2 units forward
+            }
+            this.tile_transforms[i] = temp_tile_transform; // Add the tile transform to the array at its respective index
+        }
+        let tile_creator = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+        for (let i = 0; i < this.num_platforms; i++) {
+            this.tile_creators.shift();
+            this.tile_creators.push(tile_creator);
+            this.shapes.tiles[i].setVertices(tile_creator);
+            this.shapes.tiles[i].copy_onto_graphics_card(context.context)
+        }
+        this.pause = true; 
+        this.game_over = false;
+        this.t1 = 0; 
+        this.time = 0;
+        this.jt = 0;
+        this.player_rotation = 0; 
+        this.void_rotation = 0;
+        this.player_position = 0.0; 
+        this.player_height = 0.0;
+        this.start_rotation = 0; 
+        this.movement = vec3(0,0,0); 
     }
 
     display(context, program_state) {
@@ -189,8 +230,14 @@ export class Assignment3 extends Scene {
         let border = 1.75; // Variable that determines where the border is of the two sides to accurately decide when to rotate the player
 
 
+        if (this.reset_flag || this.player_height < -10) {
+            this.reset_flag = false;
+            this.start = true;
+            this.reset(context);
+        }
+
         // PLAYER MOVEMENT //
-        if (!this.game_over) {
+        if (!this.game_over && !this.pause) {
             if (this.movement[0] != 0) { // If the player is strafing
                 this.player_position = this.player_position + (this.movement[0]*dt*this.movement_speed); // The players position becomes its previous position plus the direction of movement times the change in time times a movement constant
             }
@@ -204,7 +251,6 @@ export class Assignment3 extends Scene {
                 }
             }
         }
-
 
 
         // GAME PAUSING //
@@ -269,7 +315,7 @@ export class Assignment3 extends Scene {
                 this.tile_transforms.push(this.tile_transforms[this.tile_transforms.length-1].times(Mat4.translation(0,0,-2)));
                 let input = [];
                 for (let j = 0; j < 16; j++) {
-                    input.push(Math.round(Math.random()));
+                    input.push(Math.round(Math.random()+this.difficulty));
                 }
                 this.shapes.tiles[0].setVertices(input);
                 this.shapes.tiles[0].copy_onto_graphics_card(context.context);
@@ -392,3 +438,5 @@ export class Assignment3 extends Scene {
         program_state.set_camera(desired);
     }
 }
+
+// class Controls extends Scene
