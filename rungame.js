@@ -83,6 +83,14 @@ class Player extends Shape {
     }
 }
 
+let game_speed = 8;
+let time = 0;
+let difficulty = 0;
+let high_score = 0;
+let color_r = 0;
+let color_g = 118;
+let color_b = 255;
+
 export class RunGame extends Scene {
     constructor() {
         // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
@@ -117,7 +125,7 @@ export class RunGame extends Scene {
         }
 
         this.start = true; // If the game has just started
-        this.game_speed = 8; // Speed at which the tiles move toward the player
+        // game_speed = 8; // Speed at which the tiles move toward the player
         this.tile_transforms = []; // Array to store the transforms of each tile object
 
         let temp_tile_transform; // Temp variable for creating base transforms
@@ -131,11 +139,11 @@ export class RunGame extends Scene {
         }
 
         this.reset_flag = false;
-        this.difficulty = 0;
+        // difficulty = 0;
         this.pause = true; // Flag for pausing the game
         this.game_over = false;
         this.t1 = 0; // Time variable used for creating smooth rotations
-        this.time = 0;
+        // time = 0;
         this.jt = 0;
         this.player_rotation = 0; // Number of player rotations to make sure the player is rotated the correct way for whichever side it is on
         this.void_rotation = 0;
@@ -159,27 +167,27 @@ export class RunGame extends Scene {
         this.key_triggered_button("Start/Pause the game", ["ArrowDown"], () => {if (!this.game_over) {
             this.pause = !this.pause
             this.start = false}}, undefined);
-        this.live_string(box => {
-            box.textContent = "Score: " + (this.time*(this.game_speed/2)).toFixed(2)
-        });
-        this.key_triggered_button("Increase Game Speed", ["]"], () => {if (this.start) {this.game_speed += 1}}, undefined);
-        this.live_string(box => {
-            box.textContent = "Game Speed: " + this.game_speed.toFixed(2)
-        });
-        this.key_triggered_button("Decrease Game Speed", ["["], () => {if (this.start) {this.game_speed -= 1}}, undefined);
-        this.key_triggered_button("Decrease Difficulty" , ["Shift", "ArrowDown"], () => {if (this.start && this.difficulty < 0.5) {
-            this.difficulty += 0.01}}, undefined);
-        this.live_string(box => {
-            box.textContent = "Game Difficulty: " + Number.parseInt((-100*((this.difficulty.valueOf()+0.50))+100).toFixed(3))
-        });
-        this.key_triggered_button("Increase Difficulty" , ["Shift", "ArrowUp"], () => {if (this.start && this.difficulty > -0.5) {
-            this.difficulty -= 0.01}}, undefined);
+        this.new_line();
+        this.key_triggered_button("Decrease Game Speed", ["["], () => {if (this.start) {game_speed -= 1}}, undefined);
+        this.key_triggered_button("Increase Game Speed", ["]"], () => {if (this.start) {game_speed += 1}}, undefined);
+        this.key_triggered_button("Decrease Difficulty" , ["Control","["], () => {if (this.start && difficulty < 0.5) {
+            difficulty += 0.01}}, undefined);
+        this.key_triggered_button("Increase Difficulty" , ["Control", "]"], () => {if (this.start && difficulty > -0.5) {
+            difficulty -= 0.01}}, undefined);
+        this.new_line();
         this.key_triggered_button("Reset", ["r"], () => {this.reset_flag = true}, undefined);
-
+        this.new_line();
+        this.key_triggered_button("Red+", ["1"], () => {if (color_r < 255) {color_r++}}, undefined);
+        this.key_triggered_button("Green+", ["2"], () => {if (color_g < 255) {color_g++}}, undefined);
+        this.key_triggered_button("Blue+", ["3"], () => {if (color_b < 255) {color_b++}}, undefined);
+        this.new_line();
+        this.key_triggered_button("Red-", ["Control","1"], () => {if (color_r > 0) {color_r--}}, undefined);
+        this.key_triggered_button("Green-", ["Control","2"], () => {if (color_g > 0) {color_g--}}, undefined);
+        this.key_triggered_button("Blue-", ["Control","3"], () => {if (color_b > 0) {color_b--}}, undefined);
     }
 
     reset(context) {
-        this.time = 0;
+        time = 0;
         let temp_tile_transform; // Temp variable for creating base transforms
         for (let i = 0; i < this.num_platforms; i++) { // For 0 to the number of platforms
             if (i == 0) { // If it is the first iteration (first tile object)
@@ -199,7 +207,7 @@ export class RunGame extends Scene {
         this.pause = true; 
         this.game_over = false;
         this.t1 = 0; 
-        this.time = 0;
+        time = 0;
         this.jt = 0;
         this.player_rotation = 0; 
         this.void_rotation = 0;
@@ -211,7 +219,8 @@ export class RunGame extends Scene {
 
     display(context, program_state) {
         if (!context.scratchpad.controls) {
-            this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
+            // this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
+            this.children.push(context.scratchpad.controls = new Information());
             program_state.set_camera(this.initial_camera_location);
         }
 
@@ -226,7 +235,7 @@ export class RunGame extends Scene {
         let an = Math.PI/2; // Angle of rotation (pi/2 = 90 degrees)
         let cur_rotation = 0; // Keeping track of the current fraction of rotation for smooth rotating
         let rotation_speed = 6; // Rotation speed variable to change how quickly the character rotates when switching sides of the tiles
-        let platform_speed = this.game_speed*this.time; // Variable used to translate the tiles at the this.game_speed rate over time
+        let platform_speed = game_speed*time; // Variable used to translate the tiles at the game_speed rate over time
         let border = 1.75; // Variable that determines where the border is of the two sides to accurately decide when to rotate the player
 
 
@@ -235,6 +244,9 @@ export class RunGame extends Scene {
             this.start = true;
             this.reset(context);
         }
+
+
+        high_score = Math.max(high_score, (time*(game_speed/2)));
 
         // PLAYER MOVEMENT //
         if (!this.game_over && !this.pause) {
@@ -255,7 +267,7 @@ export class RunGame extends Scene {
 
         // GAME PAUSING //
         if (!this.pause) {
-            this.time += dt;
+            time += dt;
         }
 
 
@@ -315,7 +327,7 @@ export class RunGame extends Scene {
                 this.tile_transforms.push(this.tile_transforms[this.tile_transforms.length-1].times(Mat4.translation(0,0,-2)));
                 let input = [];
                 for (let j = 0; j < 16; j++) {
-                    input.push(Math.round(Math.random()+this.difficulty));
+                    input.push(Math.round(Math.random()+difficulty));
                 }
                 this.shapes.tiles[0].setVertices(input);
                 this.shapes.tiles[0].copy_onto_graphics_card(context.context);
@@ -330,73 +342,73 @@ export class RunGame extends Scene {
         if (this.movement[1] == 0 && this.start_rotation == 0) {
             if (this.player_rotation %4 == 0) {
                 if (this.player_position >= 1 && this.tile_creators[2][0] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][1] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][2] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][3] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 3 || this.player_rotation %4 == -1) {
                 if (this.player_position >= 1 && this.tile_creators[2][4] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][5] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][6] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][7] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 2 || this.player_rotation %4 == -2) {
                 if (this.player_position >= 1 && this.tile_creators[2][8] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][9] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][10] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][11] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 1 || this.player_rotation %4 == -3) {
                 if (this.player_position >= 1 && this.tile_creators[2][12] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][13] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][14] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][15] == 0) {
-                    this.player_height -= dt*this.game_speed;
+                    this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
@@ -428,7 +440,7 @@ export class RunGame extends Scene {
         this.shapes.player.draw(context, program_state, player_transform, this.materials.player_material);
         // All tiles
         for (let i = 0; i < this.shapes.tiles.length; i++) {
-            this.shapes.tiles[i].draw(context, program_state, this.tile_transforms[i].times(Mat4.translation(0,0,platform_speed)), this.materials.tile_material);
+            this.shapes.tiles[i].draw(context, program_state, this.tile_transforms[i].times(Mat4.translation(0,0,platform_speed)), this.materials.tile_material.override({color: color(color_r/255, color_g/255, color_b/255, 1)}));
         }
         
 
@@ -440,3 +452,28 @@ export class RunGame extends Scene {
 }
 
 // class Controls extends Scene
+class Information extends Scene {
+    make_control_panel() {
+        this.live_string(box => {
+            box.textContent = "Score: " + (time*(game_speed/2)).toFixed(2)
+        });
+        this.new_line();
+        this.live_string(box => {
+            box.textContent = "High Score: " + high_score.toFixed(2)
+        });
+        this.new_line();
+        this.new_line();
+        this.live_string(box => {
+            box.textContent = "Game Difficulty: " + Number.parseInt((-100*((difficulty.valueOf()+0.50))+100).toFixed(3))
+        });
+        this.new_line();
+        this.live_string(box => {
+            box.textContent = "Game Speed: " + game_speed.toFixed(2)
+        });
+        this.new_line();
+        this.new_line();
+        this.live_string(box => {
+            box.textContent = "Platform Color: R," + color_r + " G," + color_g + " B," + color_b
+        });
+    }
+}
