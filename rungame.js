@@ -257,7 +257,7 @@ export class RunGame extends Scene {
         }
 
 
-        high_score = Math.max(high_score, (time*(game_speed/2)));
+        high_score = Math.max(high_score, time*(game_speed/2)*Number.parseFloat((-2*((difficulty.valueOf()+0.50))+2).toFixed(3)));
 
         // PLAYER MOVEMENT //
         if (!this.game_over && !this.pause) {
@@ -466,7 +466,7 @@ export class RunGame extends Scene {
 class Information extends Scene {
     make_control_panel() {
         this.live_string(box => {
-            box.textContent = "Score: " + (time*(game_speed/2)).toFixed(2)
+            box.textContent = "Score: " + (time*(game_speed/2)*Number.parseFloat((-2*((difficulty.valueOf()+0.50))+2).toFixed(3))).toFixed(2)
         });
         this.new_line();
         this.live_string(box => {
