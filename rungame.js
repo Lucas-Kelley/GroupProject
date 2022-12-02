@@ -26,6 +26,17 @@ class Tiles extends Shape {
             16,17,18,17,19,18,  20,21,22,21,23,22,  24,25,26,25,27,26,  28,29,30,29,31,30,
             32,33,34,33,35,34,  36,37,38,37,39,38,  40,41,42,41,43,42,  44,45,46,45,47,46,
             48,49,50,49,51,50,  52,53,54,53,55,54,  56,57,58,57,59,58,  60,61,62,61,63,62,)
+        
+        for (let i = 0; i < tile_locations.length; i ++) {
+            if (tile_locations[i] == 0) {
+                let index = i*4;
+                for (let j = 0; j < 4; j++) {
+                    this.arrays.position[index] = Vector3.from([0,0,0]);
+                    this.arrays.normal[index] = Vector3.from([0,0,0]);
+                    index++;
+                }
+            }
+        }
     }
 
     setVertices(tile_locations=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]) {
@@ -341,73 +352,73 @@ export class RunGame extends Scene {
         // COLLISION DETECTION //
         if (this.movement[1] == 0 && this.start_rotation == 0) {
             if (this.player_rotation %4 == 0) {
-                if (this.player_position >= 1 && this.tile_creators[2][0] == 0) {
+                if ((this.player_position >= 1.125 && this.tile_creators[2][0] == 0) || (this.player_position < 1.125 && this.player_position >= 0.875 && this.tile_creators[2][0] == 0 && this.tile_creators[2][1] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][1] == 0) {
+                } else if ((this.player_position >= 0.125 && this.player_position < 0.875 && this.tile_creators[2][1] == 0) || (this.player_position < 0.125 && this.player_position >= -0.125 && this.tile_creators[2][1] == 0 && this.tile_creators[2][2] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][2] == 0) {
+                } else if ((this.player_position >= -0.875 && this.player_position < -0.125 && this.tile_creators[2][2] == 0) || (this.player_position < -0.875 && this.player_position >= -1.125 && this.tile_creators[2][2] == 0 && this.tile_creators[2][3] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][3] == 0) {
+                } else if ((this.player_position < -1.125 && this.tile_creators[2][3] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 3 || this.player_rotation %4 == -1) {
-                if (this.player_position >= 1 && this.tile_creators[2][4] == 0) {
+                if ((this.player_position >= 1.125 && this.tile_creators[2][4] == 0) || (this.player_position < 1.125 && this.player_position >= 0.875 && this.tile_creators[2][4] == 0 && this.tile_creators[2][5] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][5] == 0) {
+                } else if ((this.player_position >= 0.125 && this.player_position < 0.875 && this.tile_creators[2][5] == 0) || (this.player_position < 0.125 && this.player_position >= -0.125 && this.tile_creators[2][5] == 0 && this.tile_creators[2][6] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][6] == 0) {
+                } else if ((this.player_position >= -0.875 && this.player_position < -0.125 && this.tile_creators[2][6] == 0) || (this.player_position < -0.875 && this.player_position >= -1.125 && this.tile_creators[2][6] == 0 && this.tile_creators[2][7] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][7] == 0) {
+                } else if ((this.player_position < -1.125 && this.tile_creators[2][7] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 2 || this.player_rotation %4 == -2) {
-                if (this.player_position >= 1 && this.tile_creators[2][8] == 0) {
+                if ((this.player_position >= 1.125 && this.tile_creators[2][8] == 0) || (this.player_position < 1.125 && this.player_position >= 0.875 && this.tile_creators[2][8] == 0 && this.tile_creators[2][9] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][9] == 0) {
+                } else if ((this.player_position >= 0.125 && this.player_position < 0.875 && this.tile_creators[2][9] == 0) || (this.player_position < 0.125 && this.player_position >= -0.125 && this.tile_creators[2][9] == 0 && this.tile_creators[2][10] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][10] == 0) {
+                } else if ((this.player_position >= -0.875 && this.player_position < -0.125 && this.tile_creators[2][10] == 0) || (this.player_position < -0.875 && this.player_position >= -1.125 && this.tile_creators[2][10] == 0 && this.tile_creators[2][11] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][11] == 0) {
+                } else if ((this.player_position < -1.125 && this.tile_creators[2][11] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
                 }
             } else if (this.player_rotation %4 == 1 || this.player_rotation %4 == -3) {
-                if (this.player_position >= 1 && this.tile_creators[2][12] == 0) {
+                if ((this.player_position >= 1.125 && this.tile_creators[2][12] == 0) || (this.player_position < 1.125 && this.player_position >= 0.875 && this.tile_creators[2][12] == 0 && this.tile_creators[2][13] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= 0 && this.player_position < 1 && this.tile_creators[2][13] == 0) {
+                } else if ((this.player_position >= 0.125 && this.player_position < 0.875 && this.tile_creators[2][13] == 0) || (this.player_position < 0.125 && this.player_position >= -0.125 && this.tile_creators[2][13] == 0 && this.tile_creators[2][14] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1 && this.player_position < 0 && this.tile_creators[2][14] == 0) {
+                } else if ((this.player_position >= -0.875 && this.player_position < -0.125 && this.tile_creators[2][14] == 0) || (this.player_position < -0.875 && this.player_position >= -1.125 && this.tile_creators[2][14] == 0 && this.tile_creators[2][15] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
-                } else if (this.player_position >= -1*border && this.player_position < -1 && this.tile_creators[2][15] == 0) {
+                } else if ((this.player_position < -1.125 && this.tile_creators[2][15] == 0)) {
                     this.player_height -= dt*game_speed;
                     this.pause = true;
                     this.game_over = true;
