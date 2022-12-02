@@ -475,5 +475,10 @@ class Information extends Scene {
         this.live_string(box => {
             box.textContent = "Platform Color: R," + color_r + " G," + color_g + " B," + color_b
         });
+        this.new_line();
+        this.new_line();
+        this.live_string(box => {
+            box.textContent = "Difficulty and Speed can only be adjusted prior to pressing the start key, or after restarting"
+        });
     }
 }
